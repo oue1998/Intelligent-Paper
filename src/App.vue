@@ -4,6 +4,11 @@
   </div>
 </template>
 
+<script>
+// @ is an alias to /src
+
+</script>
+
 <style>
 :root {
   --theme-color: 232, 80, 91;
