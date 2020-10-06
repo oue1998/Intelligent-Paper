@@ -1,18 +1,20 @@
 <template>
   <div>
-    <button class="box" v-if="stepWinner < 2">
-      ฉันคือกระดาษแสนฉลาด ผู้ไม่เคยแพ้ ฉันจะเป็น X นะ และฉันจะเริ่มก่อน
+    <button class="box" v-if="stepWinner > -1">
+      ฉันคือกระดาษแสนฉลาด ผู้ไม่เคยแพ้ ฉันจะเป็น X นะ และ{{mes}}
     </button>
-    <button class="box" v-if="stepWinner > 1">
+    <!-- <button class="box" v-if="stepWinner > 1">
       ฉันมีรูปแบบการเดินที่ทำให้ไม่มีทางแพ้อยู่
       ฉันก็แค่เดินตามกฎที่กำหนดไว้ไปที่ละข้อ
       ถ้าเดินตามกฎนี้ไม่ว่าจะอีกกี่ครั้งก็ไม่มีทางแพ้
-    </button>
+    </button> -->
     <div class="game">
       <div class="game-area">
         <div class="game-title">
           <h1>กระดาษฉลาดจุง</h1>
         </div>
+        <div><button class="tic" @click="turn">MODE</button></div>
+
         <board :squares="squares" :winner="winner" @click="click" />
 
         <div class="game-info">
@@ -25,7 +27,7 @@
             >!&nbsp;
             <button @click="restart">เล่นอีกครั้ง</button>
           </p>
-          <p v-else-if="stepNumber > 3">
+          <p v-else-if="stepNumber > 4">
             เสมอ!&nbsp;
             <button @click="restart">เล่นอีกครั้ง</button>
           </p>
@@ -36,17 +38,38 @@
           </p>
         </div>
       </div>
-      <!-- <button class="tic" v-if="stepWinner < 2">
-      ฉันคือกระดาษแสนฉลาด ผู้ไม่เคยแพ้ ฉันจะเป็น X นะ และฉันจะเริ่มก่อน </button> -->
-      <!-- <img v-if="stepWinner > 1" id="image" v:bind:src="tic" alt="tic" /> -->
-      <p class="img" v-if="stepWinner > 1"> 
-        <img v-if="stepNumber == 0" id="image" src="../assets/tic1.png" alt="tic1" />
-        <img v-if="stepNumber == 1" id="image" src="../assets/tic2.png" alt="tic2" />
-        <img v-if="stepNumber == 2" id="image" src="../assets/tic3.png" alt="tic3" />
-        <img v-if="stepNumber == 3" id="image" src="../assets/tic4.png" alt="tic4" />
-        <img v-if="stepNumber == 4" id="image" src="../assets/tic5.png" alt="tic5" />
-      </p>
-
+      <!-- <p class="img" v-if="stepWinner > 1">
+        <img
+          v-if="stepNumber == 0"
+          id="image"
+          src="../assets/tic1.png"
+          alt="tic1"
+        />
+        <img
+          v-if="stepNumber == 1"
+          id="image"
+          src="../assets/tic2.png"
+          alt="tic2"
+        />
+        <img
+          v-if="stepNumber == 2"
+          id="image"
+          src="../assets/tic3.png"
+          alt="tic3"
+        />
+        <img
+          v-if="stepNumber == 3"
+          id="image"
+          src="../assets/tic4.png"
+          alt="tic4"
+        />
+        <img
+          v-if="stepNumber == 4"
+          id="image"
+          src="../assets/tic5.png"
+          alt="tic5"
+        />
+      </p> -->
     </div>
   </div>
 </template>
@@ -65,11 +88,15 @@ export default {
       aiPlayer: "X",
       winner: null,
       stepWinner: 0,
+      turn2: true,
+      isPlayer:false,
+      mes:"ฉันจะเป็นฝ่ายเริ่มก่อนนะ",
+      
     };
   },
   //เรียกใช้อัติโนมัตเมื่อเปิดหน้าเว็บขึ้นมา
   mounted() {
-    this.aiMove();
+    this.$set(this.squares, 8, this.aiPlayer);
   },
   methods: {
     hasWinner() {
@@ -108,16 +135,43 @@ export default {
       this.Player = "O";
       this.aiPlayer = "X";
       this.winner = null;
-      this.aiMove();
       this.stepWinner = this.stepWinner + 1;
+      this.turn2 = true;
+      this.isPlayer = false;
+      this.mes = "ฉันจะเป็นฝ่ายเริ่มก่อนนะ";
+    },
+
+    turn(){
+      if (this.isPlayer == false) {
+        this.mes = "คุณเป็นฝ่ายเริ่มก่อนได้เลย";
+        this.squares = Array(9).fill(null);
+        this.stepNumber = 0;
+        this.isPlayer = true;
+      } else if (this.isPlayer == true) {
+        this.mes = "ฉันจะเป็นฝ่ายเริ่มก่อนนะ";
+        this.squares = Array(9).fill(null);
+        this.$set(this.squares, 8, this.aiPlayer);
+        this.stepNumber = 0;
+        this.isPlayer = false;
+      }
     },
 
     click(i) {
+      
       if (this.squares[i] || this.winner) return;
       this.$set(this.squares, i, this.Player);
       if (!this.hasWinner()) {
         this.stepNumber = this.stepNumber + 1;
       }
+      if (this.isPlayer == false) {
+        this.Xmove();
+      } else if (this.isPlayer == true) {
+        this.Xmove2();
+      }
+    },
+
+    Xmove(){
+
       if (this.stepNumber == 1) {
         if (this.squares[0] == "O") this.$set(this.squares, 2, this.aiPlayer);
         else this.$set(this.squares, 0, this.aiPlayer);
@@ -176,9 +230,115 @@ export default {
 
       }
     },
-    aiMove() {
-      if (this.stepNumber === 0) {
-        this.$set(this.squares, 8, this.aiPlayer);
+
+    Xmove2() {
+      if (this.stepNumber == 1) {
+        const angle = [0, 2, 6, 8];
+        const random = Math.floor(Math.random() * angle.length);
+        //ช่องตรงกลางว่างหรือไม่
+        if (this.squares[4] == "O")
+          this.$set(this.squares, angle[random], this.aiPlayer);
+        else this.$set(this.squares, 4, this.aiPlayer);
+      }
+
+      if (this.stepNumber == 2) {
+        this.turn2 = false;
+        //มุม O 2ตัว อยู่ที่มุมทแยงกันหรือไม่
+        if (
+          (this.squares[0] == "O" && this.squares[8] == "O") ||
+          (this.squares[2] == "O" && this.squares[6] == "O")
+        ) {
+          const noAngle = [1, 3, 5, 7];
+          const random2 = Math.floor(Math.random() * noAngle.length);
+          this.$set(this.squares, noAngle[random2], this.aiPlayer);
+          this.hasWinner();
+          return;
+        }
+
+        //ไม่มีแถวไหนที่มี O 2ตัว หรือ X 2ตัวเลย
+        if(this.squares[0] == "O" && this.squares[7] == "O"){
+          this.$set(this.squares, 6, this.aiPlayer);
+          this.hasWinner();
+          return;
+        }
+
+        if(this.squares[2] == "O" && this.squares[7] == "O"){
+          this.$set(this.squares, 8, this.aiPlayer);
+          this.hasWinner();
+          return;
+        }
+      }
+
+      if (this.stepNumber >= 2) {
+        
+        const move = [
+          [0, 1, 2],
+          [6, 7, 8],
+          [3, 4, 5],
+          [0, 3, 6],
+          [1, 4, 7],
+          [2, 5, 8],
+          [0, 4, 8],
+          [2, 4, 6],
+        ];
+        //เช็ค X
+        for (let i = 0; i < move.length; i++) {
+          let countX = 0;
+          for (let j = 0; j < 3; j++) {
+            if (this.squares[move[i][j]] == "X") {
+              countX++;
+            }
+          }
+          if (countX == 2) {
+            for (let j = 0; j < 3; j++) {
+              if (this.squares[move[i][j]] == null) {
+                this.$set(this.squares, move[i][j], this.aiPlayer);
+                this.hasWinner();
+                return;
+              }
+            }
+          }
+        }
+        //เช็ค O
+        for (let i = 0; i < move.length; i++) {
+          let countO = 0;
+          for (let j = 0; j < 3; j++) {
+            if (this.squares[move[i][j]] == "O") {
+              countO++;
+            }
+          }
+
+          if (countO == 2) {
+            for (let j = 0; j < 3; j++) {
+              if (this.squares[move[i][j]] == null) {
+                this.$set(this.squares, move[i][j], this.aiPlayer);
+                this.hasWinner();
+                return;
+              }
+              if(this.squares[move[i][j]] == "X" && this.turn2 == true){
+                const angle = [0, 2, 6, 8];
+                for (let i = 0; i < angle.length; i++) {
+                  if (this.squares[angle[i]] == null) {
+                    this.$set(this.squares, angle[i], this.aiPlayer);
+                    this.turn2 = false;
+                    this.hasWinner();
+                    return;
+                  }
+                }
+              }
+            }
+          }
+        }
+
+        //ไม่มีแถวไหนที่มี O 2ตัว หรือ X 2ตัวเลย
+        const area = [0,1,2,3,4,5,6,7,8]
+                for(let k = 0; k < area.length; k++){
+                if (this.squares[area[k]] == null){
+                this.$set(this.squares, area[k], this.aiPlayer);
+                this.hasWinner();
+                return;
+                }
+                }
       }
     },
   },
@@ -186,13 +346,14 @@ export default {
 </script>
 
 <style scoped>
-.img{
-padding: 0%;
-margin: 0%;
-width: 200px;
-height: 500px;
-margin-left: 30px;
-margin-right: 50vh;
+
+.img {
+  padding: 0%;
+  margin: 0%;
+  width: 200px;
+  height: 500px;
+  margin-left: 30px;
+  margin-right: 50vh;
 }
 
 .box {
@@ -212,19 +373,15 @@ margin-right: 50vh;
   margin-left: 40px; */
 }
 
-.tic{
+.tic {
   font-family: "Sriracha", cursive;
   color: black;
   font-size: 20px;
   background-color: #f9d56e;
   border: #f9d56e;
   padding: 10px;
-  margin-left: 20px;
-  margin-top: 0%;
-  margin-bottom: 0%;
-  width: 500px;
+  margin: 5px;
 }
-
 
 .game {
   background-color: rgba(var(--gradient-color-base));
@@ -295,7 +452,7 @@ margin-right: 50vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 0 0 3vmin;
+  margin: 4vmin 0 0;
 }
 
 .game-title img {
@@ -314,7 +471,7 @@ margin-right: 50vh;
 }
 
 .game-info {
-  margin: 3vmin 0 0;
+  margin: 1.5vmin 0 0;
   padding: 1rem 0.5rem;
   font-size: 1.25em;
   text-align: center;

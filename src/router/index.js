@@ -20,6 +20,7 @@ Vue.use(VueRouter)
 ]
 
 const router = new VueRouter({
+  //hash ทำให้เวลากดรีเฟรซกลับไปที่ลิ้งที่ใช้
   mode: 'hash',
   base: process.env.BASE_URL,
   routes
